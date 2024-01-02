@@ -44,7 +44,7 @@ add_custom_command(TARGET GameProject
     POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E echo "Compilation successful. Running the game..."
     COMMAND "${CMAKE_BINARY_DIR}/bin/GameProject"
-    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/bin   # Change the working directory to bin
     COMMENT "Running the game..."
     VERBATIM
 )
