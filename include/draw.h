@@ -3,6 +3,6 @@
 
 #include "raylib.h"
 
-void DrawGame(Vector2 ballPosition, Rectangle rec);
+void DrawGame(Vector2 ballPosition, GridData mapData, Texture2D Ground);
 
 #endif // DRAW_H

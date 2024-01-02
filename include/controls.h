@@ -4,6 +4,6 @@
 
 #include "raylib.h"
 
-void ControlsHandlePlayerControls(Vector2* ballPosition, int* SPEEDx, int* SPEEDy, Rectangle* rec);
+void ControlsInitControls(Vector2* Player);
 
 #endif // CONTROLS_H

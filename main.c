@@ -8,30 +8,29 @@
 #include "game.h"
 #include "controls.h"
 #include "draw.h"
-/// #include "assets/char/walk"
 //------------------------------------------------------------------------------------
 // Program main entry point
 //------------------------------------------------------------------------------------
 
 int main(void)
 {
-    const int WIDTH = 640;
-    const int HEIGHT = 480;
+    const int WIDTH = 1200;
+    const int HEIGHT = 720;
     const char TITLE[] = "Test";
-    int SPEEDx = 1;
-    int SPEEDy = 1;
     InitWindow(WIDTH, HEIGHT, TITLE);
+    Image groundImage = LoadImage("assets/brick_floor.png");
+    Texture2D groundTexture = LoadTextureFromImage(groundImage);
+    UnloadImage(groundImage);
 
-    Vector2 ballPosition;
-    Rectangle rec;
-    GameInitializeGame(&ballPosition, &rec);
-
+    Vector2 Player;
+    GridData mapData =  GameGenerateMap();
+    GameInitializePlayer(&Player, &mapData, );
     SetTargetFPS(30);
     while (!WindowShouldClose())
     {
-        ControlsHandlePlayerControls(&ballPosition, &SPEEDx, &SPEEDy, &rec);
-        DrawGame(ballPosition, rec);
+        DrawGame(Player, mapData, groundTexture);
+        ControlsInitControls(&Player);
     }
-
+    UnloadTexture(groundTexture);
     CloseWindow();
 }
