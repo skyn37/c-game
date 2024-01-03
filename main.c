@@ -13,18 +13,19 @@
 //------------------------------------------------------------------------------------
 
 int main(void)
-{
+{   
     const int WIDTH = 1200;
     const int HEIGHT = 720;
     const char TITLE[] = "Test";
     InitWindow(WIDTH, HEIGHT, TITLE);
-    Image groundImage = LoadImage("assets/brick_floor.png");
+    const char* currentFileDirectory = GetDirectoryPath(__FILE__);
+    const char* imagePath = TextFormat("%s/assets/brick_floor.png", currentFileDirectory);
+    Image groundImage = LoadImage(imagePath);
     Texture2D groundTexture = LoadTextureFromImage(groundImage);
     UnloadImage(groundImage);
-
     Vector2 Player;
     GridData mapData =  GameGenerateMap();
-    GameInitializePlayer(&Player, &mapData, );
+    GameInitializePlayer(&Player, &mapData);
     SetTargetFPS(30);
     while (!WindowShouldClose())
     {
