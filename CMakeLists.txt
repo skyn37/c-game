@@ -39,16 +39,6 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 set(CMAKE_MODULE_PATH "${CMAKE_BINARY_DIR}/module")
 
-# Print a message indicating compilation success or failure
-add_custom_command(TARGET GameProject
-    POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E echo "Compilation successful. Running the game..."
-    COMMAND "${CMAKE_BINARY_DIR}/bin/GameProject"
-    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/bin   # Change the working directory to bin
-    COMMENT "Running the game..."
-    VERBATIM
-)
-
 # Generate compile_commands.json for LSP
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
