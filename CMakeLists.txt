@@ -1,3 +1,8 @@
+cmake_minimum_required(VERSION 3.10)
+project(GameProject C)
+
+set(CMAKE_C_STANDARD 11)
+
 # Set the paths
 set(INCLUDE_PATH "${CMAKE_SOURCE_DIR}/include")
 set(LIB_PATH "${CMAKE_SOURCE_DIR}/lib")
