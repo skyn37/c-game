@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "raylib.h"
 #include "rlgl.h"
-
+#include <stdlib.h>
 #include <stddef.h> // Required for: NULL
 #include <math.h>   // Required for: sinf()
 
@@ -20,18 +20,30 @@ int main(void)
     InitWindow(WIDTH, HEIGHT, TITLE);
     const char* currentFileDirectory = GetDirectoryPath(__FILE__);
     const char* imagePath = TextFormat("%s/assets/brick_floor.png", currentFileDirectory);
+    const char* shaderPath = TextFormat("%s/shaders/test_shader.fs", currentFileDirectory);
+    Shader customShader = LoadShader(0, shaderPath);
+
+    Vector2 Player;
     Image groundImage = LoadImage(imagePath);
     Texture2D groundTexture = LoadTextureFromImage(groundImage);
+    printf("%d %d  \n", groundTexture.height, groundTexture.width);
+    SetShaderValueTexture(customShader, GetShaderLocation(customShader, "texture0"), groundTexture);
     UnloadImage(groundImage);
-    Vector2 Player;
     GridData mapData =  GameGenerateMap();
     GameInitializePlayer(&Player, &mapData);
+    printf("%f %f", Player.x, Player.y);
     SetTargetFPS(30);
     while (!WindowShouldClose())
     {
+       // BeginShaderMode(customShader);
+
         DrawGame(Player, mapData, groundTexture);
-        ControlsInitControls(&Player);
+       // EndShaderMode();
+        ControlsInitControls(&Player, &mapData);
+
     }
+    free(mapData.grid);
     UnloadTexture(groundTexture);
+    UnloadShader(customShader);
     CloseWindow();
 }

@@ -3,12 +3,16 @@
 #define GAME_H
 
 #include "raylib.h"
-#define MAX_MAP_SIZE_X 1000
-#define MAX_MAP_SIZE_Y 1000
-
+#define MAX_MAP_SIZE_X 300
+#define MAX_MAP_SIZE_Y 300
+ 
+typedef struct {
+    Vector2 position;
+    int textureInfo; // Additional field for texture information
+} GridCell;
 
 typedef struct {
-    int grid[MAX_MAP_SIZE_X][MAX_MAP_SIZE_Y];
+    GridCell* grid;
     int width;
     int height;
 } GridData;
