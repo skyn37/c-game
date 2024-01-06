@@ -5,21 +5,37 @@
 Camera2D InitCamera(Vector2* Player);
 void DrawMap(Texture2D Ground, GridData mapData);
 
+// GLobal count there should be a better way TODO //
+int count = 0;
 
 
-
-void DrawGame(Vector2 ballPosition, GridData mapData, Texture2D Ground)
+void DrawGame(Vector2 ballPosition, GridData mapData, Texture2D Ground, Enemy recArr[])
 {
+
     BeginDrawing();
-
     ClearBackground(GRAY);
-
     BeginMode2D(InitCamera(&ballPosition));
     DrawMap(Ground, mapData);
     DrawCircleV(ballPosition, 50, BLACK);
+
     DrawText("move the ball with arrow keys", 10, 10, 20, DARKGRAY);
+
+    for (int i = 0; i < count; i++) {
+        DrawRectangleRec(recArr[i].collisionBox, GREEN);
+
+    } 
+
+
+
     EndMode2D();
     EndDrawing();
+
+    if(IsKeyPressed(KEY_W))
+    {
+        SpawnEntity(recArr, &count, &ballPosition);
+    } 
+
+
 }
 
 void DrawMap(Texture2D Ground, GridData mapData)
@@ -45,11 +61,14 @@ Camera2D InitCamera(Vector2* Player)
     camera.target = (Vector2){Player->x, Player->y};
     camera.offset = (Vector2){ GetScreenWidth()/2.0f, GetScreenHeight()/2.0f };
     camera.rotation = 0.0f;
-    camera.zoom = 0.1f;
+    camera.zoom = 0.5f;
 
 
     return camera;
 }
+
+
+
 
 
 

@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <game.h>
 #include <math.h>
+#include <sys/_types/_size_t.h>
 
 
 // TODO sexy globals
@@ -45,10 +46,49 @@ void HandlePlayerControls(Vector2* Player, GridData* mapData) {
     }
 }
 
-void ControlsInitControls(Vector2* Player, GridData* mapData)
+
+// TODO 
+// 1st lets try random position with map collision
+// 2nd will try to search for the player and engage 
+void UpdateEnemyPosition(Enemy *enemy, Vector2 position, GridData* mapData)
+{   
+    Vector2 nextPosition = position;
+    int gridX, gridY;
+    WorldToGrid(nextPosition, &gridX, &gridY);
+
+    if (!CellContainsObstacle(mapData, gridX, gridY)) {
+        enemy->position = nextPosition;
+        enemy->collisionBox.y = nextPosition.y;
+        enemy->collisionBox.x = nextPosition.x;
+    }
+}
+
+void ControlsUpdatePositions(Vector2* Player, GridData* mapData, Enemy enemyArr[], size_t len)
 {
     HandlePlayerControls(Player, mapData);
+
+    for (size_t i = 0; i < len; ++i) {
+        int xOffset = GetRandomValue(-10, 10);  // This is the position change the whole func should be smoother and no magic numbers so TODO
+        int yOffset = GetRandomValue(-10, 10);  
+        int x = enemyArr[i].position.x + xOffset;
+        int y = enemyArr[i].position.y + yOffset;
+
+        printf("New position for enemy %zu: (%d, %d)\n", i, x, y);
+        UpdateEnemyPosition(&enemyArr[i], (Vector2){x, y}, mapData);
+    }
 }
+
+void EnemySearchTarget(Enemy enemy, Enemy enemy2)
+{
+
+    GetCollisionRec(enemy.collisionBox, enemy.collisionBox);
+
+}
+
+
+
+
+
 
 
 

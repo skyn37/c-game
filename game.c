@@ -1,11 +1,11 @@
 #include "raylib.h"
-
 #include "game.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 #include "raymath.h"
 #include <string.h>
+#include "draw.h"
 
 void GameInitializePlayer(Vector2* ballPosition, GridData* mapData) {
     Vector2 position = {0.0f, 0.0f};
@@ -34,7 +34,7 @@ void GameInitializePlayer(Vector2* ballPosition, GridData* mapData) {
 
 GridData GameGenerateMap() {
     Vector2 mapSize = (Vector2){MAX_MAP_SIZE_X, MAX_MAP_SIZE_Y};
-    int numberOfSteps = 20000; // TODO this is the numbers of steps the drun algo takes should handle that better
+    int numberOfSteps = 10; // TODO this is the numbers of steps the drun algo takes should handle that better
 
     Vector2 allowedMovements[] = {
         {-1, 0},  // left
@@ -76,6 +76,22 @@ GridData GameGenerateMap() {
     return result;
 }
 
+
+void SpawnEntity(Enemy recArr[], int* count, Vector2* ballPosition) 
+{
+    Vector2 mouse = GetMousePosition();
+    Vector2 normal = GetScreenToWorld2D(mouse, InitCamera(ballPosition));
+    Enemy enemy = 
+    {
+        .position = normal,
+        .collisionBox = (Rectangle){ normal.x, normal.y, 50.0, 50.0}
+    };
+    if(*count < MAX_ENEMIES) 
+    {
+        recArr[*count] = enemy;
+        (*count)++;
+    }
+}
 
 
 

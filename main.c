@@ -12,8 +12,12 @@
 // Program main entry point
 //------------------------------------------------------------------------------------
 
+
+
 int main(void)
 {   
+
+    // TODO We should prolly add some sort of loading logic this will get out of hand at some point 
     const int WIDTH = 1200;
     const int HEIGHT = 720;
     const char TITLE[] = "Test";
@@ -23,7 +27,10 @@ int main(void)
     const char* shaderPath = TextFormat("%s/shaders/test_shader.fs", currentFileDirectory);
     Shader customShader = LoadShader(0, shaderPath);
 
+    // We should handle those initializations better probably
     Vector2 Player;
+    Enemy recArr[50];
+    size_t enemy_arr_len = sizeof(recArr) / sizeof(recArr[0]);
     Image groundImage = LoadImage(imagePath);
     Texture2D groundTexture = LoadTextureFromImage(groundImage);
     printf("%d %d  \n", groundTexture.height, groundTexture.width);
@@ -33,13 +40,16 @@ int main(void)
     GameInitializePlayer(&Player, &mapData);
     printf("%f %f", Player.x, Player.y);
     SetTargetFPS(30);
+
+
     while (!WindowShouldClose())
     {
-       // BeginShaderMode(customShader);
+        // BeginShaderMode(customShader);
 
-        DrawGame(Player, mapData, groundTexture);
-       // EndShaderMode();
-        ControlsInitControls(&Player, &mapData);
+        DrawGame(Player, mapData, groundTexture, recArr);
+
+        // EndShaderMode();
+        ControlsUpdatePositions(&Player, &mapData, recArr, enemy_arr_len);
 
     }
     free(mapData.grid);
@@ -47,3 +57,7 @@ int main(void)
     UnloadShader(customShader);
     CloseWindow();
 }
+
+
+
+
