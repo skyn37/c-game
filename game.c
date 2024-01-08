@@ -7,7 +7,10 @@
 #include <string.h>
 #include "draw.h"
 
-void GameInitializePlayer(Vector2* ballPosition, GridData* mapData) {
+
+
+
+void GameInitializePlayer(Player* Player, GridData* mapData) {
     Vector2 position = {0.0f, 0.0f};
 
     for (int i = 0; i < mapData->width; i++) {
@@ -26,8 +29,15 @@ void GameInitializePlayer(Vector2* ballPosition, GridData* mapData) {
     }
 
     // TODO this is the ground texture h and w should handle that better
-    ballPosition->x = position.x * 600.0 + 600.0 / 2.0f;
-    ballPosition->y = position.y * 600.0 + 600.0 / 2.0f;
+    Player->position.x= position.x * 600.0 + 600.0 / 2.0f;
+    Player->position.y= position.y * 600.0 + 600.0 / 2.0f;
+    Player->collisionBox.x = Player->position.x;
+
+    Player->collisionBox.y = Player->position.y;
+    Player->collisionBox.width = 50 ;
+    Player->collisionBox.height = 50 ;
+    Player->speed = 10.0;
+
 }
 
 
@@ -77,14 +87,15 @@ GridData GameGenerateMap() {
 }
 
 
-void SpawnEntity(Enemy recArr[], int* count, Vector2* ballPosition) 
+void SpawnEntity(Enemy recArr[], int* count, Camera2D* camera) 
 {
     Vector2 mouse = GetMousePosition();
-    Vector2 normal = GetScreenToWorld2D(mouse, InitCamera(ballPosition));
+    Vector2 normal = GetScreenToWorld2D(mouse, *camera);
     Enemy enemy = 
     {
         .position = normal,
-        .collisionBox = (Rectangle){ normal.x, normal.y, 50.0, 50.0}
+        .collisionBox = (Rectangle){ normal.x, normal.y, 50.0, 50.0},
+        .speed = 20.0
     };
     if(*count < MAX_ENEMIES) 
     {
@@ -92,6 +103,15 @@ void SpawnEntity(Enemy recArr[], int* count, Vector2* ballPosition)
         (*count)++;
     }
 }
+
+void GameUpdateCamera(Camera2D* camera, Player* Player)
+{
+    camera->target = (Vector2){Player->position.x, Player->position.y};
+    camera->offset = (Vector2){ GetScreenWidth()/2.0f, GetScreenHeight()/2.0f };
+    camera->rotation = 0.0f;
+    camera->zoom = GAME_CAMERA_ZOOM;
+}
+
 
 
 

@@ -19,7 +19,6 @@
 
 int main(void)
 {   
-
     // TODO We should prolly add some sort of loading logic this will get out of hand at some point 
     const int WIDTH = 1200;
     const int HEIGHT = 720;
@@ -31,8 +30,9 @@ int main(void)
     Shader customShader = LoadShader(0, shaderPath);
 
     // We should handle those initializations better probably
-    Vector2 Player;
+    Player Player;
     Enemy recArr[50];
+    Camera2D camera = {0};
     size_t enemy_arr_len = sizeof(recArr) / sizeof(recArr[0]);
     Image groundImage = LoadImage(imagePath);
     Texture2D groundTexture = LoadTextureFromImage(groundImage);
@@ -41,7 +41,6 @@ int main(void)
     UnloadImage(groundImage);
     GridData mapData =  GameGenerateMap();
     GameInitializePlayer(&Player, &mapData);
-    printf("%f %f", Player.x, Player.y);
     SetTargetFPS(30);
 
 
@@ -49,11 +48,12 @@ int main(void)
     {
         // BeginShaderMode(customShader);
 
-        DrawGame(Player, mapData, groundTexture, recArr);
+        DrawGame(Player, mapData, groundTexture, recArr, camera);
 
         // EndShaderMode();
         ControlsUpdatePositions(&Player, &mapData, recArr, enemy_arr_len);
-
+        
+        GameUpdateCamera(&camera, &Player);
     }
     free(mapData.grid);
     UnloadTexture(groundTexture);

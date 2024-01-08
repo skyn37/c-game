@@ -7,7 +7,5 @@
 #include <stddef.h>
 
 
-void ControlsUpdatePositions(Vector2* Player, GridData* mapData, Enemy enemyArr[], size_t len );
-void EnemySearchTarget(Enemy enemy);
-void UpdateEnemyPosition(Enemy *enemy, Vector2 position, GridData* mapData);
+void ControlsUpdatePositions(Player* Player, GridData* mapData, Enemy enemyArr[], size_t len );
 #endif // CONTROLS_H

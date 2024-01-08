@@ -1,27 +1,30 @@
 #include "raylib.h"
 #include "game.h"
 #include <stdio.h>
+#include "raygui.h"
 
-Camera2D InitCamera(Vector2* Player);
+Camera2D InitCamera(Vector2* Player, float* zoom);
 void DrawMap(Texture2D Ground, GridData mapData);
+void EditCamera(Camera2D* camera);
+
 
 // GLobal count there should be a better way TODO //
-int count = 0;
+static int count = 0;
 
-
-void DrawGame(Vector2 ballPosition, GridData mapData, Texture2D Ground, Enemy recArr[])
+void DrawGame(Player Player, GridData mapData, Texture2D Ground, Enemy enemyCollection[], Camera2D camera)
 {
 
     BeginDrawing();
     ClearBackground(GRAY);
-    BeginMode2D(InitCamera(&ballPosition));
+    BeginMode2D(camera);
     DrawMap(Ground, mapData);
-    DrawCircleV(ballPosition, 50, BLACK);
+
+    DrawRectangleLinesEx(Player.collisionBox, 1.0, RED);
 
     DrawText("move the ball with arrow keys", 10, 10, 20, DARKGRAY);
 
     for (int i = 0; i < count; i++) {
-        DrawRectangleRec(recArr[i].collisionBox, GREEN);
+        DrawRectangleRec(enemyCollection[i].collisionBox, GREEN);
 
     } 
 
@@ -32,7 +35,7 @@ void DrawGame(Vector2 ballPosition, GridData mapData, Texture2D Ground, Enemy re
 
     if(IsKeyPressed(KEY_W))
     {
-        SpawnEntity(recArr, &count, &ballPosition);
+        SpawnEntity(enemyCollection, &count, &camera);
     } 
 
 
@@ -55,17 +58,6 @@ void DrawMap(Texture2D Ground, GridData mapData)
     }
 }
 
-Camera2D InitCamera(Vector2* Player)
-{
-    Camera2D camera = {0};
-    camera.target = (Vector2){Player->x, Player->y};
-    camera.offset = (Vector2){ GetScreenWidth()/2.0f, GetScreenHeight()/2.0f };
-    camera.rotation = 0.0f;
-    camera.zoom = 0.5f;
-
-
-    return camera;
-}
 
 
 
