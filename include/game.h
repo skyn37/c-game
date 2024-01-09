@@ -21,12 +21,15 @@ typedef struct {
 typedef struct {
     Rectangle collisionBox;
     Vector2 position;
+    Vector2 direction;
+    Vector2 spawnPoint;
     float speed;
 } Enemy;
 
 typedef struct {
     Rectangle collisionBox;
     Vector2 position;
+    Vector2 direction;
     float speed;
 } Player;
 

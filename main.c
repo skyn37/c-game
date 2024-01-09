@@ -31,7 +31,7 @@ int main(void)
 
     // We should handle those initializations better probably
     Player Player;
-    Enemy recArr[50];
+    Enemy recArr[50] = {0};
     Camera2D camera = {0};
     size_t enemy_arr_len = sizeof(recArr) / sizeof(recArr[0]);
     Image groundImage = LoadImage(imagePath);

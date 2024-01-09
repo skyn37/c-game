@@ -54,6 +54,13 @@ void HandlePlayerControls(Player* Player, GridData* mapData, Enemy enemyArr[], s
     else if (IsKeyDown(KEY_DOWN)) velocity.y = moveSpeed;
     else velocity.y = 0.0f;
 
+        // Normalize the velocity vector to handle diagonal movement
+    Vector2Normalize(velocity);
+
+    // Update the player's direction based on the normalized velocity vector
+    Player->direction.y = velocity.y;
+    Player->direction.x = velocity.x;
+
     // Check for collisions with enemies
     for (size_t i = 0; i < len; ++i) {
         if (CheckCollisionRecs(nextPosition, enemyArr[i].collisionBox)) {
@@ -88,31 +95,62 @@ void HandlePlayerControls(Player* Player, GridData* mapData, Enemy enemyArr[], s
     Player->position.y = Player->collisionBox.y + Player->collisionBox.height / 2;
 }
 
-void UpdateEnemyPosition(Enemy *enemy, Vector2 position, GridData* mapData) {   
-    Vector2 pos = position;
-    Rectangle nextPosition = (Rectangle){ position.x,  position.y,  enemy->collisionBox.width,  enemy-> collisionBox.height };
+bool EnemyWander(Enemy* enemy){
+    return (enemy->position.x > enemy->spawnPoint.x + GRID_CELL_SIZE ||
+            enemy->position.x < enemy->spawnPoint.x - GRID_CELL_SIZE || 
+            enemy->position.y > enemy->spawnPoint.y + GRID_CELL_SIZE || 
+            enemy->position.y < enemy->spawnPoint.y - GRID_CELL_SIZE );
+}
+
+float GetRandomFloat() {
+    return GetRandomValue(-100, 100) / 100.0f; 
+}
+
+Vector2 GetRandomDirection(float moveSpeed) {
+    Vector2 direction = (Vector2){GetRandomFloat(), GetRandomFloat()};
+    direction = Vector2Normalize(direction);
+    direction = Vector2Scale(direction, moveSpeed);
+    return direction;
+}
+
+void UpdateEnemyPosition(Enemy* enemy, GridData* mapData) {
+    Rectangle nextPosition = enemy->collisionBox;
+    static Vector2 velocity = {0.0f, 0.0f};
+    float moveSpeed = 75.0f * GetFrameTime() * enemy->speed;
+
+    // Replace key-based movement with random direction-based movement
+    velocity = GetRandomDirection(moveSpeed);
+
+    // Normalize the velocity vector to handle diagonal movement
+    Vector2Normalize(velocity);
+
+    // Update the player's direction based on the normalized velocity vector
+    enemy->direction.y = velocity.y;
+    enemy->direction.x = velocity.x;
+
+    // Check for collisions with obstacles
+    nextPosition.x += velocity.x;
+    nextPosition.y += velocity.y;
 
     if (!RectangleCollidesWithObstacle(mapData, nextPosition)) {
-        enemy->position = pos;
         enemy->collisionBox = nextPosition;
+        enemy->position.x = nextPosition.x + nextPosition.width / 2;
+        enemy->position.y = nextPosition.y + nextPosition.height / 2;
     }
 }
 
+
 void ControlsUpdatePositions(Player* Player, GridData* mapData, Enemy enemyArr[], size_t len) {
 
+    HandlePlayerControls(Player, mapData, enemyArr, len);
     for (size_t i = 0; i < len; ++i) {
-        int xOffset = GetRandomValue(-10, 10);  // This is the position change the whole func should be smoother and no magic numbers so TODO
-        int yOffset = GetRandomValue(-10, 10);  
-        int x = enemyArr[i].position.x + xOffset * GetFrameTime() * enemyArr[i].speed;
-        int y = enemyArr[i].position.y + yOffset * GetFrameTime() * enemyArr[i].speed;
 
         if(!PlayerCollidesWithEnemy(Player, &enemyArr[i])){
-            UpdateEnemyPosition(&enemyArr[i], (Vector2){x, y}, mapData);
+            UpdateEnemyPosition(&enemyArr[i], mapData);
         }
 
     }
 
-    HandlePlayerControls(Player, mapData, enemyArr, len);
 }
 
 void EnemySearchTarget(Enemy enemy, Enemy enemy2) {

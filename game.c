@@ -37,10 +37,8 @@ void GameInitializePlayer(Player* Player, GridData* mapData) {
     Player->collisionBox.width = 50 ;
     Player->collisionBox.height = 50 ;
     Player->speed = 10.0;
-
+    Player->direction = (Vector2){0.0f, 0.0f};
 }
-
-
 
 GridData GameGenerateMap() {
     Vector2 mapSize = (Vector2){MAX_MAP_SIZE_X, MAX_MAP_SIZE_Y};
@@ -95,7 +93,9 @@ void SpawnEntity(Enemy recArr[], int* count, Camera2D* camera)
     {
         .position = normal,
         .collisionBox = (Rectangle){ normal.x, normal.y, 50.0, 50.0},
-        .speed = 20.0
+        .speed = 5.0,
+        .direction = (Vector2){0.0f, 0.0f},
+        .spawnPoint = normal
     };
     if(*count < MAX_ENEMIES) 
     {
