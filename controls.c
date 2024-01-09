@@ -3,19 +3,20 @@
 #include <stdio.h>
 #include <game.h>
 #include <math.h>
-#include <sys/_types/_size_t.h>
 #include "raymath.h"
 
 // TODO This is the ground texture w and h should handle that better
 #define GRID_CELL_SIZE 600
-// Grid based collision detection .. its ok  TODO:  needs improvement 
+
 // Function to convert world coordinates to grid coordinates
 void WorldToGrid(Vector2 worldPos, int* gridX, int* gridY) {
     *gridX = (int)(worldPos.x / GRID_CELL_SIZE);
     *gridY = (int)(worldPos.y / GRID_CELL_SIZE);
 }
-
-
+// Function to see if a player is colliding with an enemy
+bool PlayerCollidesWithEnemy(Player* Player, Enemy* enemy){
+    return CheckCollisionRecs(Player->collisionBox, enemy->collisionBox);
+}
 
 // Function to check if a cell in the grid contains an obstacle
 bool CellContainsObstacle(GridData* mapData, int gridX, int gridY) {
@@ -39,30 +40,54 @@ bool RectangleCollidesWithObstacle(GridData* mapData, Rectangle rect) {
            CellContainsObstacle(mapData, bottomRightX, bottomRightY);
 }
 
-void HandlePlayerControls(Player* Player, GridData* mapData) {
+void HandlePlayerControls(Player* Player, GridData* mapData, Enemy enemyArr[], size_t len) {
     Rectangle nextPosition = Player->collisionBox;
     static Vector2 velocity = {0.0, 0.0};
+    float moveSpeed = 50.0f * GetFrameTime() * Player->speed;
 
+    // Determine movement direction based on key input
+    if (IsKeyDown(KEY_RIGHT)) velocity.x = moveSpeed;
+    else if (IsKeyDown(KEY_LEFT)) velocity.x = -moveSpeed;
+    else velocity.x = 0.0f;
 
-    if (IsKeyDown(KEY_RIGHT)) nextPosition.x += 50.0f * GetFrameTime() * Player->speed;
-    if (IsKeyDown(KEY_LEFT)) nextPosition.x -= 50.0f * GetFrameTime() *  Player->speed;
-    if (IsKeyDown(KEY_UP)) nextPosition.y -= 50.0f * GetFrameTime() * Player->speed;
-    if (IsKeyDown(KEY_DOWN)) nextPosition.y += 50.0f * GetFrameTime() *  Player->speed;
+    if (IsKeyDown(KEY_UP)) velocity.y = -moveSpeed;
+    else if (IsKeyDown(KEY_DOWN)) velocity.y = moveSpeed;
+    else velocity.y = 0.0f;
 
+    // Check for collisions with enemies
+    for (size_t i = 0; i < len; ++i) {
+        if (CheckCollisionRecs(nextPosition, enemyArr[i].collisionBox)) {
+            // Calculate the direction to the enemy
+            Vector2 direction = Vector2Normalize((Vector2){ enemyArr[i].position.x - Player->position.x, enemyArr[i].position.y - Player->position.y});
 
-    // Check if the next position collides with an obstacle
-    if (!RectangleCollidesWithObstacle(mapData, nextPosition)) {
-        // Update the player's position only if it doesn't collide with an obstacle
-        Player->collisionBox = nextPosition;
-        Player->position.x = nextPosition.x + nextPosition.width / 2;
-        Player->position.y = nextPosition.y + nextPosition.height / 2;
+            // Calculate the dot product to determine if the movement is towards the enemy
+            float dotProduct = Vector2DotProduct(direction, velocity);
+            // If the movement is towards the enemy, adjust the movement direction
+            if (dotProduct > 0) {
+                Vector2 perpendicular = { -direction.y, direction.x };
+                velocity.x = perpendicular.x * moveSpeed;
+                velocity.y = perpendicular.y * moveSpeed;
+            }
+            break;
+        }
     }
+
+    // Check for collisions with obstacles
+    nextPosition.x += velocity.x;
+    nextPosition.y += velocity.y;
+
+    if (RectangleCollidesWithObstacle(mapData, nextPosition)) {
+        velocity.x = 0.0f;
+        velocity.y = 0.0f;
+    }
+
+    // Update the player's position
+    Player->collisionBox.x += velocity.x;
+    Player->collisionBox.y += velocity.y;
+    Player->position.x = Player->collisionBox.x + Player->collisionBox.width / 2;
+    Player->position.y = Player->collisionBox.y + Player->collisionBox.height / 2;
 }
 
-
-// TODO 
-// 1st lets try random position with map collision
-// 2nd will try to search for the player and engage 
 void UpdateEnemyPosition(Enemy *enemy, Vector2 position, GridData* mapData) {   
     Vector2 pos = position;
     Rectangle nextPosition = (Rectangle){ position.x,  position.y,  enemy->collisionBox.width,  enemy-> collisionBox.height };
@@ -74,7 +99,6 @@ void UpdateEnemyPosition(Enemy *enemy, Vector2 position, GridData* mapData) {
 }
 
 void ControlsUpdatePositions(Player* Player, GridData* mapData, Enemy enemyArr[], size_t len) {
-    HandlePlayerControls(Player, mapData);
 
     for (size_t i = 0; i < len; ++i) {
         int xOffset = GetRandomValue(-10, 10);  // This is the position change the whole func should be smoother and no magic numbers so TODO
@@ -82,13 +106,16 @@ void ControlsUpdatePositions(Player* Player, GridData* mapData, Enemy enemyArr[]
         int x = enemyArr[i].position.x + xOffset * GetFrameTime() * enemyArr[i].speed;
         int y = enemyArr[i].position.y + yOffset * GetFrameTime() * enemyArr[i].speed;
 
-        UpdateEnemyPosition(&enemyArr[i], (Vector2){x, y}, mapData);
+        if(!PlayerCollidesWithEnemy(Player, &enemyArr[i])){
+            UpdateEnemyPosition(&enemyArr[i], (Vector2){x, y}, mapData);
+        }
+
     }
+
+    HandlePlayerControls(Player, mapData, enemyArr, len);
 }
 
 void EnemySearchTarget(Enemy enemy, Enemy enemy2) {
-
     GetCollisionRec(enemy.collisionBox, enemy.collisionBox);
-
 }
 
